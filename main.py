@@ -1,5 +1,4 @@
-from flask import Flask
-
+from flask import Flask, render_template
 
 app = Flask(__name__)
 with open('secret_key/secret_key.txt', 'r') as f:
@@ -8,7 +7,7 @@ with open('secret_key/secret_key.txt', 'r') as f:
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    return 'Home'
+    return render_template('base.html')
 
 
 if __name__ == '__main__':
