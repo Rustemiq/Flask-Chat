@@ -1,9 +1,11 @@
-from flask import Flask, render_template, make_response, jsonify
+from flask import Flask, render_template, make_response, jsonify, redirect
 from flask_restful import Api
+from flask_login import LoginManager, login_user
 from requests import post
 
 from data.user_recources import UsersListResource
 from forms.user_register import RegisterForm
+from forms.user_login import LoginForm
 from data.users import User
 from data import db_session
 
@@ -11,6 +13,14 @@ app = Flask(__name__)
 api = Api(app)
 with open('secret_key/secret_key.txt', 'r') as f:
     app.config['SECRET_KEY'] = f.read()
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    db_sess = db_session.create_session()
+    return db_sess.query(User).get(user_id)
 
 
 @app.errorhandler(404)
@@ -53,6 +63,24 @@ def register():
             'birth_date': str(form.birth_date.data),
             'password': form.password.data})
     return render_template('register.html', title='Registration', form=form)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.username == form.username.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user, remember=form.remember_me.data)
+            return redirect("/")
+        return render_template('login.html',
+                               message="Wrong username or password",
+                               form=form)
+
+    return render_template('login.html', form=form)
+
+
 
 
 if __name__ == '__main__':
