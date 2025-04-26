@@ -1,6 +1,6 @@
 from flask import Flask, render_template, make_response, jsonify, redirect
 from flask_restful import Api
-from flask_login import LoginManager, login_user
+from flask_login import LoginManager, login_user, login_required, logout_user
 from requests import post
 
 from data.user_recources import UsersListResource
@@ -81,6 +81,11 @@ def login():
     return render_template('login.html', form=form)
 
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
 
 
 if __name__ == '__main__':
