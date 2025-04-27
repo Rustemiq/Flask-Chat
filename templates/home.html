@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h4>Your chats</h4>
+
+{% for chat in chats %}
+    <p class="btn btn-outline-primary" style="width: 50%; text-align: left"> {{ chat.name }} </p>
+{% endfor %}
+
+{% endblock %}

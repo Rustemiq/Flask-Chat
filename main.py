@@ -1,10 +1,10 @@
 from flask import Flask, render_template, make_response, jsonify, redirect
 from flask_restful import Api
-from flask_login import LoginManager, login_user, login_required, logout_user
-from requests import post
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from requests import post, get
 
-from data.user_recources import UsersListResource
-from data.chat_recources import ChatsListResource
+from data.user_recources import UsersListResource, UsersResource
+from data.chat_recources import ChatsListResource, ChatsResource
 from forms.user_register import RegisterForm
 from forms.user_login import LoginForm
 from forms.chat_creation import ChatCreationForm
@@ -37,7 +37,15 @@ def bad_request(_):
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    return render_template('base.html')
+    if current_user.is_authenticated:
+        chats_id = get(f'http://127.0.0.1:8080/api/users/{current_user.id}').json()['users']['chats']
+    else:
+        chats_id = []
+    chats = []
+    for chat_id in chats_id:
+        chat = get(f'http://127.0.0.1:8080/api/chats/{chat_id}').json()['chats']
+        chats.append(chat)
+    return render_template('home.html', chats=chats)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -125,5 +133,7 @@ def create_chat():
 if __name__ == '__main__':
     db_session.global_init('db/flask_chat.db')
     api.add_resource(UsersListResource, '/api/users')
+    api.add_resource(UsersResource, '/api/users/<int:user_id>')
     api.add_resource(ChatsListResource, '/api/chats')
+    api.add_resource(ChatsResource, '/api/chats/<int:chat_id>')
     app.run(port='8080', host='127.0.0.1')
