@@ -3,8 +3,14 @@
 {% block content %}
 <h4>Your chats</h4>
 
-{% for chat in chats %}
-    <p class="btn btn-outline-primary" style="width: 50%; text-align: left"> {{ chat.name }} </p>
-{% endfor %}
+{% if current_user.is_authenticated %}
+    <a class="btn btn-primary" href="/create_chat" style="margin-bottom: 15px"> Add Chat </a>
+    <br>
+    {% for chat in chats %}
+        <a class="btn btn-outline-primary" style="width: 50%; text-align: left"> {{ chat.name }} </a>
+    {% endfor %}
+{% else %}
+    <h5>Sign in to start chatting</h5>
+{% endif %}
 
 {% endblock %}

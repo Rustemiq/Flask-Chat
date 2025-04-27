@@ -72,6 +72,7 @@ def register():
             'username': form.username.data,
             'birth_date': str(form.birth_date.data),
             'password': form.password.data})
+        return redirect('/login')
     return render_template('register.html', title='Registration', form=form)
 
 
@@ -119,9 +120,11 @@ def create_chat():
                     form=form,
                     not_found_users=not_found_users
                 )
+            members = form.usernames.data
+            members.append({'username': current_user.username})
             post('http://127.0.0.1:8080/api/chats', json={
                 'name': form.name.data,
-                'members': form.usernames.data
+                'members': members
                 })
             return redirect('/')
     return render_template(
