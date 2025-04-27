@@ -21,4 +21,4 @@ class Chat(SqlAlchemyBase):
     name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     members = orm.relationship("User",
                           secondary="user_to_chat",
-                          backref="chat")
+                          back_populates="chats")

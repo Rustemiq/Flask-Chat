@@ -26,3 +26,19 @@ class UsersListResource(Resource):
         session.add(user)
         session.commit()
         return jsonify({'id': user.id})
+
+
+class UsersResource(Resource):
+    def get(self, user_id):
+        abort_if_user_not_found(user_id)
+        session = db_session.create_session()
+        user = session.query(User).get(user_id)
+        data = user.to_dict(
+            only=(
+                'id',
+                'nickname',
+                'username',
+            ),
+        )
+        data['chats'] = [chat.id for chat in user.chats]
+        return jsonify({'users': data})
