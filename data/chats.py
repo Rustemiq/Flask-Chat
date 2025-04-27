@@ -1,6 +1,7 @@
 import sqlalchemy
 from .db_session import SqlAlchemyBase
 from sqlalchemy import orm
+from sqlalchemy_serializer import SerializerMixin
 
 
 user_to_chat = sqlalchemy.Table(
@@ -13,7 +14,7 @@ user_to_chat = sqlalchemy.Table(
 )
 
 
-class Chat(SqlAlchemyBase):
+class Chat(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'chats'
 
     id = sqlalchemy.Column(sqlalchemy.Integer,

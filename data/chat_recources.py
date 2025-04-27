@@ -29,3 +29,18 @@ class ChatsListResource(Resource):
         session.add(chat)
         session.commit()
         return jsonify({'id': chat.id})
+
+
+class ChatsResource(Resource):
+    def get(self, chat_id):
+        abort_if_chat_not_found(chat_id)
+        session = db_session.create_session()
+        chat = session.query(Chat).get(chat_id)
+        data = chat.to_dict(
+            only=(
+                'id',
+                'name',
+            ),
+        )
+        data['members'] = [member.id for member in chat.members]
+        return jsonify({'chats': data})

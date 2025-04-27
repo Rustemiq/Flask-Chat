@@ -38,6 +38,7 @@ class UsersResource(Resource):
                 'id',
                 'nickname',
                 'username',
+                'birth_date'
             ),
         )
         data['chats'] = [chat.id for chat in user.chats]
