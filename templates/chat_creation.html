@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h4>Create chat</h4>
+
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+
+    <p>
+        {{ form.name.label }}<br>
+        {{ form.name(class="form-control") }}<br>
+        {% for error in form.name.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+
+    {% for username in form.usernames %}
+    {{ username }}
+    {% if username in not_found_users %}
+        <p class="alert alert-danger" role="alert" style="padding: 2px">
+            Not found
+        </p>
+    {% else %}
+        <br>
+    {% endif %}
+    {% endfor %}
+    <p>{{ form.add_user(type="submit", class="btn btn-primary") }}
+        {{ form.delete_user(type="submit", class="btn btn-primary") }} </p>
+    <p>{{ form.confirm(type="submit", class="btn btn-primary") }}</p>
+
+</form>
+{% endblock %}
