@@ -1,7 +1,7 @@
-from data import db_session
+from data.models import db_session
 from data.chats import Chat
 from data.users import User
-from data.chat_parser import chat_parser
+from api.chat_parser import chat_parser
 
 from flask import jsonify
 from flask_restful import Resource, abort

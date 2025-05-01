@@ -1,6 +1,6 @@
-from data import db_session
+from data.models import db_session
 from data.users import User
-from data.user_parser import user_parser
+from api.user_parser import user_parser
 
 from flask import abort, jsonify
 from flask_restful import Resource
