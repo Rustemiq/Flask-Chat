@@ -23,7 +23,6 @@ def register():
         if form.password.data != form.password_again.data:
             return render_template(
                 'register.html',
-                title='Registration',
                 form=form,
                 message='Passwords do not match'
             )
@@ -31,7 +30,6 @@ def register():
         if db_sess.query(User).filter(User.username == form.username.data).first():
             return render_template(
                 'register.html',
-                title='Registration',
                 form=form,
                 message='Username is taken'
             )
@@ -41,7 +39,7 @@ def register():
             'birth_date': str(form.birth_date.data),
             'password': form.password.data})
         return redirect('/login')
-    return render_template('register.html', title='Registration', form=form)
+    return render_template('register.html', form=form)
 
 
 @blueprint.route('/login', methods=['GET', 'POST'])
