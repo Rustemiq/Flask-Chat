@@ -1,4 +1,5 @@
 from data.chats import Chat
+from data.messages import Message
 from data.models import db_session
 from data.users import User
 from tools.singleton import singleton
@@ -18,6 +19,9 @@ class DbManager():
     def get_chat(self, chat_id):
         return self.db_sess.query(Chat).filter(Chat.id == chat_id).first()
 
+    def get_message(self, message_id):
+        return self.db_sess.query(Message).filter(Message.id == message_id).first()
+
     def create_user(self, nickname, username, birth_date, password):
         user = User(
             nickname=nickname,
@@ -36,4 +40,14 @@ class DbManager():
         self.db_sess.add(chat)
         self.db_sess.commit()
         return chat
+
+    def create_message(self, chat_id, author_id, text):
+        message = Message(
+            chat_id=chat_id,
+            author_id=author_id,
+            text=text
+        )
+        self.db_sess.add(message)
+        self.db_sess.commit()
+        return message
 
