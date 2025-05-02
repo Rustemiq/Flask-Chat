@@ -9,7 +9,7 @@
     <a class="btn btn-primary" href="/create_chat" style="margin-bottom: 15px"> Add Chat </a>
     <br>
     {% for chat in chats %}
-        <a class="btn btn-outline-primary" style="width: 50%; text-align: left"> {{ chat.name }} </a>
+        <a class="btn btn-outline-primary" href="chat/{{chat.id}}"style="width: 50%; text-align: left"> {{ chat.name }} </a>
     {% endfor %}
 {% else %}
     <h5>Sign in to start chatting</h5>
