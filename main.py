@@ -5,7 +5,7 @@ from flask_login import LoginManager
 from api.user_resources import UsersListResource, UsersResource
 from api.chat_resources import ChatsListResource, ChatsResource
 from blueprints import users_blueprint, chats_blueprint, pages_blueprint, errorhandlers_blueprint
-from data.users import User
+from data.db_manager import DbManager
 from data.models import db_session
 
 app = Flask(__name__)
@@ -18,8 +18,8 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    db_sess = db_session.create_session()
-    return db_sess.query(User).get(user_id)
+    manager = DbManager()
+    return manager.get_user(user_id)
 
 
 if __name__ == '__main__':

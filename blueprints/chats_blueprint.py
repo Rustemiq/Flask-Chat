@@ -1,10 +1,9 @@
 from flask import Blueprint, render_template, redirect
 from flask_login import current_user
-from requests import post, get
 
+from data.db_manager import DbManager
 from forms.chat_creation import ChatCreationForm
-from data.models import db_session
-from data.users import User
+
 
 blueprint = Blueprint(
     'chats_function',
@@ -23,10 +22,10 @@ def create_chat():
             if form.usernames.__len__() > 1:
                 form.usernames.pop_entry()
         elif form.confirm:
-            db_sess = db_session.create_session()
+            manager = DbManager()
             not_found_users = []
             for username in form.usernames:
-                if not db_sess.query(User).filter(User.username == str(username.data['username'])).first():
+                if not manager.get_user_by_name((username.data['username'])):
                     not_found_users.append(username)
             if not_found_users:
                 return render_template(
@@ -34,12 +33,9 @@ def create_chat():
                     form=form,
                     not_found_users=not_found_users
                 )
-            members = form.usernames.data
-            members.append({'username': current_user.username})
-            post('http://127.0.0.1:8080/api/chats', json={
-                'name': form.name.data,
-                'members': members
-                })
+            members_names = [member['username'] for member in form.usernames.data]
+            members_names.append(current_user.username)
+            manager.create_chat(form.name.data, members_names)
             return redirect('/')
     return render_template(
         'chat_creation.html',
