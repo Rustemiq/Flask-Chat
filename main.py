@@ -7,11 +7,11 @@ from api.chat_resources import ChatsListResource, ChatsResource
 from blueprints import users_blueprint, chats_blueprint, pages_blueprint, errorhandlers_blueprint
 from data.db_manager import DbManager
 from data.models import db_session
+from decouple import config
 
 app = Flask(__name__)
 api = Api(app)
-with open('secret_key/secret_key.txt', 'r') as f:
-    app.config['SECRET_KEY'] = f.read()
+app.config['SECRET_KEY'] = config('secret_key', default='default_secretkey')
 login_manager = LoginManager()
 login_manager.init_app(app)
 
