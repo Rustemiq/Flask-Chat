@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %} {{chat.name}} {% endblock %}
+
+{% block content %}
+<h4>{{chat.name}}</h4>
+
+{% for message in chat.messages %}
+<a class="alert alert-primary" style="padding: 7px;"> {{ message.text }} </a><br><br>
+{% endfor %}
+
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+
+    <p>
+        {{ form.text(class="form-control") }}<br>
+    </p>
+
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+
+</form>
+
+{% endblock %}
