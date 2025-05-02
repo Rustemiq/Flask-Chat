@@ -8,9 +8,8 @@ from flask_restful import Resource, abort
 
 
 def abort_if_chat_not_found(chat_id):
-    session = db_session.create_session()
-    chat = session.query(Chat).get(chat_id)
-    if not chat:
+    manager = DbManager()
+    if not manager.get_chat(chat_id):
         abort(404, message=f"Chat {chat_id} not found")
 
 
