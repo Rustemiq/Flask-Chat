@@ -6,7 +6,21 @@
 <h4>{{chat.name}}</h4>
 
 {% for message in chat.messages %}
-<a class="alert alert-primary" style="padding: 7px;"> {{ message.text }} </a><br><br>
+    {% if loop.first or message.author != chat.messages[loop.index0 - 1].author %}
+        {% if current_user == message.author: %}
+            <div class="alert alert-success" role="alert" style="width: fit-content">
+                <a class="alert-heading"><b> You </b></a><br>
+        {% else %}
+            <div class="alert alert-primary" role="alert" style="width: fit-content;">
+            <a class="alert-heading" style="color: gray"><b>{{ message.author.nickname }}</b></a><br>
+        {% endif %}
+    {% endif %}
+  <a style="white-space: pre-wrap">{{ message.text }}</a>
+      {% if loop.last or message.author != chat.messages[loop.index0 + 1].author %}
+          </div>
+      {% else %}
+          <br>
+      {% endif %}
 {% endfor %}
 
 <form method="POST" action="">
