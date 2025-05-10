@@ -1,6 +1,7 @@
-from flask import Flask, make_response, jsonify
+from flask import Flask, make_response, jsonify, session
 from flask_restful import Api
 from flask_login import LoginManager
+from flask_uploads import configure_uploads, UploadSet
 
 from api.user_resources import UsersListResource, UsersResource
 from api.chat_resources import ChatsListResource, ChatsResource
@@ -12,6 +13,13 @@ from decouple import config
 app = Flask(__name__)
 api = Api(app)
 app.config['SECRET_KEY'] = config('secret_key', default='default_secretkey')
+app.config['UPLOADED_MESSAGES_DEST'] = 'media/message_files'
+app.config['UPLOADED_MESSAGES_URL'] = 'media/message_files/'
+app.config['UPLOADED_MESSAGES_ALLOW'] = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
+messages = UploadSet('messages')
+configure_uploads(app, messages)
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 
