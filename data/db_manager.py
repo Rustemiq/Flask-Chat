@@ -1,4 +1,5 @@
 from data.chats import Chat
+from data.files import File
 from data.messages import Message
 from data.models import db_session
 from data.users import User
@@ -50,4 +51,14 @@ class DbManager():
         self.db_sess.add(message)
         self.db_sess.commit()
         return message
+
+    def create_file(self, filename, user_filename, message_id):
+        file = File(
+            filename=filename,
+            user_filename=user_filename,
+            message_id=message_id
+        )
+        self.db_sess.add(file)
+        self.db_sess.commit()
+        return file
 
