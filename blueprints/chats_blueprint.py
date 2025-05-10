@@ -1,4 +1,3 @@
-import flask_uploads.exceptions
 from flask import Blueprint, render_template, redirect
 from flask_login import current_user
 from flask_uploads import UploadSet
@@ -54,10 +53,13 @@ def chat(chat_id):
         return redirect('/')
     form = MessageForm()
     if form.validate_on_submit():
-        manager.create_message(chat_id, current_user.id, form.text.data)
+        message = manager.create_message(chat_id, current_user.id, form.text.data)
         messages = UploadSet('messages')
         for file in form.files.data:
             if file.filename != '':
+                user_filename = file.filename
                 file.filename = translit(file.filename, language_code='ru', reversed=True)
                 filename = messages.save(file)
+                manager = DbManager()
+                manager.create_file(filename, user_filename, message.id)
     return render_template('chat.html', chat=chat, form=form)
