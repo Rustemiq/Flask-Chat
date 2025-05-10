@@ -30,6 +30,11 @@
         {{ form.text(class="form-control") }}<br>
     </p>
     <p> {{ form.files(class="btn btn-light") }}</p>
+    {% for error in form.files.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
 
 </form>

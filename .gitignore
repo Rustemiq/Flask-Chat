@@ -55,3 +55,4 @@ cython_debug/
 .pypirc
 
 #source: https://github.com/github/gitignore/blob/main/Python.gitignore
+/media/message_files/
