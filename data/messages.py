@@ -18,3 +18,4 @@ class Message(SqlAlchemyBase, SerializerMixin):
     chat = orm.relationship('Chat')
 
     text = sqlalchemy.Column(sqlalchemy.Text, nullable=True)
+    files = orm.relationship("File", back_populates='message')
