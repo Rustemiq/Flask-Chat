@@ -23,6 +23,9 @@ class DbManager():
     def get_message(self, message_id):
         return self.db_sess.query(Message).filter(Message.id == message_id).first()
 
+    def get_file(self, file_id):
+        return self.db_sess.query(File).filter(File.id == file_id).first()
+
     def create_user(self, nickname, username, birth_date, password):
         user = User(
             nickname=nickname,

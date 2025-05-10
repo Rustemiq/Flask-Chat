@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect
+from flask import Blueprint, render_template, redirect, send_file
 from flask_login import current_user
 from flask_uploads import UploadSet
 from transliterate import translit
@@ -52,14 +52,27 @@ def chat(chat_id):
     if not current_user.is_authenticated or not current_user in chat.members:
         return redirect('/')
     form = MessageForm()
+    upload_messages = UploadSet('messages')
     if form.validate_on_submit():
         message = manager.create_message(chat_id, current_user.id, form.text.data)
-        messages = UploadSet('messages')
         for file in form.files.data:
             if file.filename != '':
                 user_filename = file.filename
                 file.filename = translit(file.filename, language_code='ru', reversed=True)
-                filename = messages.save(file)
+                filename = upload_messages.save(file)
                 manager = DbManager()
                 manager.create_file(filename, user_filename, message.id)
-    return render_template('chat.html', chat=chat, form=form)
+    return render_template('chat.html', chat=chat, form=form, upload_messages=upload_messages)
+
+
+@blueprint.route('/download/<file_id>')
+def download(file_id):
+    manager = DbManager()
+    file = manager.get_file(file_id)
+    if not current_user in file.message.chat.members:
+        return redirect('/')
+    upload_messages = UploadSet('messages')
+    path = upload_messages.url(file.filename)
+    print(path)
+    return send_file(path, download_name=file.user_filename, as_attachment=True)
+

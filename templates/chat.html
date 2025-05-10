@@ -6,35 +6,31 @@
 <h4>{{chat.name}}</h4>
 
 {% for message in chat.messages %}
+    <div class="alert alert-success" role="alert" style="width: fit-content">
     {% if loop.first or message.author != chat.messages[loop.index0 - 1].author %}
         {% if current_user == message.author: %}
-            <div class="alert alert-success" role="alert" style="width: fit-content">
-                <a class="alert-heading"><b> You </b></a><br>
+            <a class="alert-heading"><b> You </b></a><br>
         {% else %}
-            <div class="alert alert-primary" role="alert" style="width: fit-content;">
             <a class="alert-heading" style="color: gray"><b>{{ message.author.nickname }}</b></a><br>
         {% endif %}
     {% endif %}
-  <a style="white-space: pre-wrap">{{ message.text }}</a>
-      {% if loop.last or message.author != chat.messages[loop.index0 + 1].author %}
-          </div>
-      {% else %}
-          <br>
+      {% if message.files != [] %}
+           {% for file in message.files %}
+               <a class="btn btn-light page-btn" href="/download/{{file.id}}">{{ file.user_filename }}</a>
+           {% endfor %}
+            <br>
       {% endif %}
+  <a style="white-space: pre-wrap">{{ message.text }}</a>
+  </div>
 {% endfor %}
 
-<form method="POST" action="" enctype="multipart/form-data">
+<form method="POST" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
 
     <p>
         {{ form.text(class="form-control") }}<br>
     </p>
     <p> {{ form.files(class="btn btn-light") }}</p>
-    {% for error in form.files.errors %}
-            <p class="alert alert-danger" role="alert">
-                {{ error }}
-            </p>
-        {% endfor %}
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
 
 </form>
