@@ -1,7 +1,10 @@
+import datetime
+
 from flask import Blueprint, redirect, render_template
 from flask_login import current_user, login_user, login_required, logout_user
 
 from data.db_manager import DbManager
+from forms.user_edit import UserEditForm
 from forms.user_login import LoginForm
 from forms.user_register import RegisterForm
 
@@ -57,6 +60,31 @@ def profile(user_id):
     manager = DbManager()
     user = manager.get_user(user_id)
     return render_template('profile.html', user=user)
+
+
+@blueprint.route('/profile_edit/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def profile_edit(user_id):
+    if current_user.id != user_id:
+        return redirect('/')
+    manager = DbManager()
+    user = manager.get_user(user_id)
+    y, m, d = map(int, user.birth_date.split('-'))
+    birth_date = datetime.date(y, m, d)
+    form = UserEditForm(
+        nickname=user.nickname,
+        username=user.username,
+        birth_date=birth_date
+    )
+    if form.validate_on_submit():
+        manager.edit_user(
+            user.id,
+            nickname=form.nickname.data,
+            username=form.username.data,
+            birth_date=str(form.birth_date.data)
+        )
+        return redirect('/')
+    return render_template('profile_edit.html', user=user, form=form)
 
 
 @blueprint.route('/logout')

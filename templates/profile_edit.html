@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %} Sign up {% endblock %}
+
+{% block content %}
+<h4>Profile editing</h4>
+
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.nickname.label }}<br>
+        {{ form.nickname(class="form-control") }}<br>
+        {% for error in form.nickname.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.username.label }}<br>
+        {{ form.username(class="form-control") }}<br>
+        {% for error in form.username.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.birth_date.label }}<br>
+        {{ form.birth_date(class="form-control") }}<br>
+        {% for error in form.birth_date.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <a class="btn btn-warning page-btn" href="/change_password/{{user.id}}">Change password</a>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {{message}}
+</form>
+
+{% endblock %}

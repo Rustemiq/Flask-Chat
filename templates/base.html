@@ -18,7 +18,7 @@
                     <a class="btn btn-light page-btn" href="/">Home</a>
                     {% if current_user.is_authenticated %}
                         <a class="btn btn-primary" href="/logout"> Logout </a><br>
-                        <a> {{ current_user.username }}</a>
+                        <a class="btn btn-light" href="/profile/{{current_user.id}}"> {{ current_user.username }}</a>
                     {% else %}
                         <a class="btn btn-primary " href="/register">Sign up</a>
                         <a class="btn btn-primary" href="/login">Sign in</a>
