@@ -85,7 +85,13 @@ class DbManager():
 
     def delete_user(self, user_id):
         user = self.get_user(user_id)
-        user.chats.clear()
+        for chat in user.chats:
+            for message in chat.messages:
+                if message.author_id == user_id:
+                    self.edit_message(message.id, 'User has been deleted')
+                    for file in message.files:
+                        self.delete_file(file.id)
+                    message.author_id = None
         self.db_sess.delete(user)
         self.db_sess.commit()
 

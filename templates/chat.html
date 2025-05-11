@@ -6,9 +6,17 @@
 <h4>{{chat.name}}</h4>
 
 {% for message in chat.messages %}
-    <div class="alert alert-success" role="alert" style="width: fit-content">
+    {% if message.author == None %}
+        <div class="alert alert-secondary" role="alert" style="width: fit-content">
+    {% elif message.author == current_user %}
+        <div class="alert alert-success" role="alert" style="width: fit-content">
+    {% else %}
+        <div class="alert alert-primary" role="alert" style="width: fit-content">
+    {% endif %}
     {% if loop.first or message.author != chat.messages[loop.index0 - 1].author %}
-        {% if current_user == message.author: %}
+        {% if message.author == None %}
+            <a class="alert-heading" style="color: gray"> Deleted user </a><br>
+        {% elif current_user == message.author: %}
             <a class="alert-heading"><b> You </b></a><br>
         {% else %}
             <a class="alert-heading" style="color: gray"><b>{{ message.author.nickname }}</b></a><br>
