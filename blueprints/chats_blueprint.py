@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, send_file
-from flask_login import current_user
+from flask_login import current_user, login_required
 from flask_uploads import UploadSet
 from transliterate import translit
 
@@ -14,6 +14,7 @@ blueprint = Blueprint(
 )
 
 
+@login_required
 @blueprint.route('/create_chat', methods=['GET', 'POST'])
 def create_chat():
     form = ChatCreationForm()
@@ -26,9 +27,10 @@ def create_chat():
         elif form.confirm:
             manager = DbManager()
             not_found_users = []
-            for username in form.usernames:
-                if not manager.get_user_by_name((username.data['username'])):
-                    not_found_users.append(username)
+            for form_username in form.usernames:
+                username = form_username.data['username']
+                if not manager.get_user_by_name(username) or username == current_user.username:
+                    not_found_users.append(form_username)
             if not_found_users:
                 return render_template(
                     'chat_creation.html',
@@ -46,10 +48,11 @@ def create_chat():
 
 
 @blueprint.route('/chat/<int:chat_id>', methods=['GET', 'POST'])
+@login_required
 def chat(chat_id):
     manager = DbManager()
     chat = manager.get_chat(chat_id)
-    if not current_user.is_authenticated or not current_user in chat.members:
+    if not current_user in chat.members:
         return redirect('/')
     form = MessageForm()
     upload_messages = UploadSet('messages')
@@ -65,7 +68,18 @@ def chat(chat_id):
     return render_template('chat.html', chat=chat, form=form, upload_messages=upload_messages)
 
 
+@blueprint.route('/chat_members/<int:chat_id>')
+@login_required
+def members(chat_id):
+    manager = DbManager()
+    chat = manager.get_chat(chat_id)
+    if current_user not in chat.members:
+        return redirect('/')
+    return render_template('members.html', chat=chat)
+
+
 @blueprint.route('/download/<file_id>')
+@login_required
 def download(file_id):
     manager = DbManager()
     file = manager.get_file(file_id)
@@ -73,6 +87,5 @@ def download(file_id):
         return redirect('/')
     upload_messages = UploadSet('messages')
     path = upload_messages.url(file.filename)
-    print(path)
     return send_file(path, download_name=file.user_filename, as_attachment=True)
 
