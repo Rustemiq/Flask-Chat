@@ -7,6 +7,7 @@ from data.db_manager import DbManager
 from forms.user_edit import UserEditForm
 from forms.user_login import LoginForm
 from forms.user_register import RegisterForm
+from forms.change_password import ChangePasswordForm
 
 blueprint = Blueprint(
     'users_function',
@@ -85,6 +86,34 @@ def profile_edit(user_id):
         )
         return redirect('/')
     return render_template('profile_edit.html', user=user, form=form)
+
+
+@blueprint.route('/change_password/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def change_password(user_id):
+    if current_user.id != user_id:
+        return redirect('/')
+    form = ChangePasswordForm()
+    manager = DbManager()
+    user = manager.get_user(user_id)
+    if form.validate_on_submit():
+        if not user.check_password(form.old_password.data):
+            return render_template(
+                'change_password.html',
+                user=user,
+                form=form,
+                message='Wrong old password'
+            )
+        if form.password.data != form.password_again.data:
+            return render_template(
+                'change_password.html',
+                user=user,
+                form=form,
+                message='Passwords do not match'
+            )
+        manager.edit_user(user.id, password=form.password.data)
+        return redirect(f'/profile_edit/{user.id}')
+    return render_template('change_password.html', user=user, form=form)
 
 
 @blueprint.route('/logout')
