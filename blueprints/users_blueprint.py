@@ -52,6 +52,13 @@ def login():
     return render_template('login.html', form=form)
 
 
+@blueprint.route('/profile/<int:user_id>', methods=['GET'])
+def profile(user_id):
+    manager = DbManager()
+    user = manager.get_user(user_id)
+    return render_template('profile.html', user=user)
+
+
 @blueprint.route('/logout')
 @login_required
 def logout():
