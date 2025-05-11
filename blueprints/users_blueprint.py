@@ -8,6 +8,7 @@ from forms.user_edit import UserEditForm
 from forms.user_login import LoginForm
 from forms.user_register import RegisterForm
 from forms.change_password import ChangePasswordForm
+from forms.user_delete import UserDeleteForm
 
 blueprint = Blueprint(
     'users_function',
@@ -86,6 +87,22 @@ def profile_edit(user_id):
         )
         return redirect('/')
     return render_template('profile_edit.html', user=user, form=form)
+
+
+@blueprint.route('/profile_delete/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def profile_delete(user_id):
+    if current_user.id != user_id:
+        return redirect('/')
+    form = UserDeleteForm()
+    manager = DbManager()
+    user = manager.get_user(user_id)
+    if form.validate_on_submit() and form.agreement.data:
+        if not user.check_password(form.password.data):
+            return render_template('profile_delete.html', form=form, message='Wrong password')
+        manager.delete_user(user_id)
+        return redirect('/')
+    return render_template('profile_delete.html', form=form)
 
 
 @blueprint.route('/change_password/<int:user_id>', methods=['GET', 'POST'])
