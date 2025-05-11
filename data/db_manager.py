@@ -65,3 +65,46 @@ class DbManager():
         self.db_sess.commit()
         return file
 
+    def edit_user(self, user_id, **params):
+        user = self.get_user(user_id)
+        user.nickname = params.get('nickname', user.nickname)
+        user.username = params.get('username', user.username)
+        user.birth_date = params.get('birth_date', user.birth_date)
+        if 'password' in params.keys():
+            user.set_password(params['password'])
+
+    def edit_chat(self, chat_id, **params):
+        chat = self.get_chat(chat_id)
+        chat.name = params.get('name', chat.name)
+        for username in params.get('new_members', []):
+            chat.members.append(self.get_user_by_name(username))
+
+    def edit_message(self, message_id, text):
+        message = self.get_message(message_id)
+        message.text = text
+
+    def delete_user(self, user_id):
+        user = self.get_user(user_id)
+        user.chats.clear()
+        self.db_sess.delete(user)
+        self.db_sess.commit()
+
+    def delete_chat(self, chat_id):
+        chat = self.get_chat(chat_id)
+        chat.members = []
+        for message in chat.messages:
+            self.delete_message(message.id)
+        self.db_sess.delete(chat)
+        self.db_sess.commit()
+
+    def delete_message(self, message_id):
+        message = self.get_message(message_id)
+        for file in message.files:
+            self.delete_file(file.id)
+        self.db_sess.delete(message)
+        self.db_sess.commit()
+
+    def delete_file(self, file_id):
+        file = self.get_file(file_id)
+        self.db_sess.delete(file)
+        self.db_sess.commit()
