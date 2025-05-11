@@ -78,6 +78,22 @@ def members(chat_id):
     return render_template('members.html', chat=chat)
 
 
+@blueprint.route('/kick/<int:user_id>/<int:chat_id>')
+@login_required
+def kick(user_id, chat_id):
+    manager = DbManager()
+    chat = manager.get_chat(chat_id)
+    user = manager.get_user(user_id)
+    if current_user not in chat.members:
+        return redirect('/')
+    chat.members.remove(user)
+    if chat.members == []:
+        manager.delete_chat(chat.id)
+    if user == current_user:
+        return redirect('/')
+    return render_template('members.html', chat=chat)
+
+
 @blueprint.route('/download/<file_id>')
 @login_required
 def download(file_id):
