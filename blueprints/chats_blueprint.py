@@ -5,6 +5,7 @@ from transliterate import translit
 
 from data.db_manager import DbManager
 from forms.chat_create import ChatCreationForm
+from forms.chat_delete import ChatDeleteForm
 from forms.chat_edit import ChatEditForm
 from forms.message_writing import MessageForm
 
@@ -101,6 +102,20 @@ def chat_edit(chat_id):
             manager.edit_chat(chat.id, name=form.name.data, new_members=members_names)
             return render_template('chat_edit.html', chat=chat, form=form)
     return render_template('chat_edit.html', chat=chat, form=form)
+
+
+@blueprint.route('/chat_delete/<int:chat_id>', methods=['GET', 'POST'])
+@login_required
+def chat_delete(chat_id):
+    manager = DbManager()
+    chat = manager.get_chat(chat_id)
+    if current_user not in chat.members:
+        return redirect('/')
+    form = ChatDeleteForm()
+    if form.validate_on_submit() and form.agreement.data:
+        manager.delete_chat(chat.id)
+        return redirect('/')
+    return render_template('chat_delete.html', chat=chat, form=form)
 
 
 @blueprint.route('/kick/<int:user_id>/<int:chat_id>')
