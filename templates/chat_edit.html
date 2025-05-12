@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %} {{chat.name}} members {% endblock %}
+
+{% block content %}
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+    <h4>{{chat.name}}
+        {{ form.name(class="form-control", style="width: 200px") }}<br>
+        {% for error in form.name.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </h4>
+    <h5>Members</h5>
+    {% for member in chat.members %}
+        <a class="btn btn-outline-primary" href="/profile/{{member.id}}" style="width: 200px">{{member.username}}</a>
+        <a class="btn btn-warning" href="/kick/{{member.id}}/{{chat.id}}" style="width: 100px">
+            {% if current_user == member%}
+                leave
+            {% else %}
+                kick
+            {% endif %}
+        </a>
+        <br>
+    {% endfor %}<br>
+    <h5>Add members</h5>
+    {% for username in form.usernames %}
+    {{ username }}
+    {% if username in not_found_users %}
+        <p class="alert alert-danger" role="alert" style="padding: 2px">
+            Not found
+        </p>
+    {% else %}
+        <br>
+    {% endif %}
+    {% endfor %}
+    <p>{{ form.add_user(type="submit", class="btn btn-primary") }}
+        {{ form.delete_user(type="submit", class="btn btn-primary") }} </p>
+    <p>{{ form.confirm(type="submit", class="btn btn-primary") }}</p>
+
+</form>
+{% endblock %}

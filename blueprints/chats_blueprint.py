@@ -4,7 +4,8 @@ from flask_uploads import UploadSet
 from transliterate import translit
 
 from data.db_manager import DbManager
-from forms.chat_creation import ChatCreationForm
+from forms.chat_create import ChatCreationForm
+from forms.chat_edit import ChatEditForm
 from forms.message_writing import MessageForm
 
 blueprint = Blueprint(
@@ -68,14 +69,38 @@ def chat(chat_id):
     return render_template('chat.html', chat=chat, form=form, upload_messages=upload_messages)
 
 
-@blueprint.route('/chat_members/<int:chat_id>')
+@blueprint.route('/chat_edit/<int:chat_id>', methods=['GET', 'POST'])
 @login_required
-def members(chat_id):
+def chat_edit(chat_id):
     manager = DbManager()
     chat = manager.get_chat(chat_id)
     if current_user not in chat.members:
         return redirect('/')
-    return render_template('members.html', chat=chat)
+    form = ChatEditForm(name=chat.name)
+    if form.validate_on_submit():
+        if form.add_user.data:
+            form.usernames.append_entry()
+        elif form.delete_user.data:
+            if form.usernames.__len__() > 0:
+                form.usernames.pop_entry()
+        elif form.confirm.data:
+            not_found_users = []
+            for form_username in form.usernames:
+                username = form_username.data['username']
+                user = manager.get_user_by_name(username)
+                if not user or user in chat.members:
+                    not_found_users.append(form_username)
+            if not_found_users:
+                return render_template(
+                    'chat_edit.html',
+                    chat=chat,
+                    form=form,
+                    not_found_users=not_found_users
+                )
+            members_names = [member['username'] for member in form.usernames.data]
+            manager.edit_chat(chat.id, name=form.name.data, new_members=members_names)
+            return render_template('chat_edit.html', chat=chat, form=form)
+    return render_template('chat_edit.html', chat=chat, form=form)
 
 
 @blueprint.route('/kick/<int:user_id>/<int:chat_id>')
@@ -91,7 +116,7 @@ def kick(user_id, chat_id):
         manager.delete_chat(chat.id)
     if user == current_user:
         return redirect('/')
-    return render_template('members.html', chat=chat)
+    return redirect(f'/chat_edit/{chat.id}')
 
 
 @blueprint.route('/download/<file_id>')

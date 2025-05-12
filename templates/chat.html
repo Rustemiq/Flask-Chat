@@ -4,7 +4,7 @@
 
 {% block content %}
 <h4>{{chat.name}} -
-<a class="btn btn-light" href="/chat_members/{{chat.id}}">members</a>
+<a class="btn btn-light" href="/chat_edit/{{chat.id}}">Edit</a>
 </h4>
 {% for message in chat.messages %}
     {% if message.author == None %}
