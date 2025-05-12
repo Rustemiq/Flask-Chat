@@ -118,6 +118,16 @@ def chat_delete(chat_id):
     return render_template('chat_delete.html', chat=chat, form=form)
 
 
+@blueprint.route('/select_message/<int:chat_id>', methods=['GET', 'POST'])
+@login_required
+def select_message(chat_id):
+    manager = DbManager()
+    chat = manager.get_chat(chat_id)
+    if current_user not in chat.members:
+        return redirect('/')
+    return render_template('select_message.html', chat=chat)
+
+
 @blueprint.route('/kick/<int:user_id>/<int:chat_id>')
 @login_required
 def kick(user_id, chat_id):

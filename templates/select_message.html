@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %} Select message {% endblock %}
+
+{% block content %}
+<h4>Select message</h4>
+
+{% for message in chat.messages %}
+    {% if message.author == current_user %}
+        <a class="btn btn-outline-success" href="/message_edit/{{message.id}}">{{message.text}}</a><br>
+    {% endif %}
+{% endfor %}
+
+{% endblock %}
