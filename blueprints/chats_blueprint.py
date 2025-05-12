@@ -143,6 +143,18 @@ def message_edit(message_id):
     return render_template('message_edit.html', message=message, form=form)
 
 
+@blueprint.route('/message_delete/<int:message_id>', methods=['GET', 'POST'])
+@login_required
+def message_delete(message_id):
+    manager = DbManager()
+    message = manager.get_message(message_id)
+    if current_user != message.author:
+        return redirect('/')
+    chat_id = message.chat.id
+    manager.delete_message(message.id)
+    return redirect(f'/chat/{chat_id}')
+
+
 @blueprint.route('/kick/<int:user_id>/<int:chat_id>')
 @login_required
 def kick(user_id, chat_id):
