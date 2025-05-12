@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %} Message edit {% endblock %}
+
+{% block content %}
+<h4>Message edit</h4>
+
+<form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+
+    <p>
+        {{ form.text(class="form-control") }}<br>
+    </p>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    <a class="btn btn-danger page-btn" href="/message_delete/{{message.id}}">Delete</a>
+
+</form>
+
+{% endblock %}

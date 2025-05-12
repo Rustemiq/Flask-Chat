@@ -7,7 +7,8 @@ from data.db_manager import DbManager
 from forms.chat_create import ChatCreationForm
 from forms.chat_delete import ChatDeleteForm
 from forms.chat_edit import ChatEditForm
-from forms.message_writing import MessageForm
+from forms.message_edit import MessageEditForm
+from forms.message_write import MessageForm
 
 blueprint = Blueprint(
     'chats_function',
@@ -126,6 +127,20 @@ def select_message(chat_id):
     if current_user not in chat.members:
         return redirect('/')
     return render_template('select_message.html', chat=chat)
+
+
+@blueprint.route('/message_edit/<int:message_id>', methods=['GET', 'POST'])
+@login_required
+def message_edit(message_id):
+    manager = DbManager()
+    message = manager.get_message(message_id)
+    if current_user != message.author:
+        return redirect('/')
+    form = MessageEditForm(text=message.text)
+    if form.validate_on_submit():
+        manager.edit_message(message.id, form.text.data)
+        return redirect(f'/chat/{message.chat.id}')
+    return render_template('message_edit.html', message=message, form=form)
 
 
 @blueprint.route('/kick/<int:user_id>/<int:chat_id>')
