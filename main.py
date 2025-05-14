@@ -5,8 +5,8 @@ from flask_login import LoginManager
 from flask_uploads import configure_uploads, UploadSet
 
 from api.user_resources import UsersListResource, UsersResource
-from api.chat_resources import ChatsListResource, ChatsResource
-from blueprints import users_blueprint, chats_blueprint, pages_blueprint, errorhandlers_blueprint, api_login
+from api.chat_resources import ChatsResource, ChatResource
+from blueprints import users_blueprint, chats_blueprint, pages_blueprint, api_login
 from data.db_manager import DbManager
 from data.models import db_session
 from decouple import config
@@ -38,11 +38,10 @@ if __name__ == '__main__':
     db_session.global_init('db/flask_chat.db')
     api.add_resource(UsersListResource, '/api/users')
     api.add_resource(UsersResource, '/api/users/<int:user_id>')
-    api.add_resource(ChatsListResource, '/api/chats')
-    api.add_resource(ChatsResource, '/api/chats/<int:chat_id>')
+    api.add_resource(ChatsResource, '/api/chats')
+    api.add_resource(ChatResource, '/api/chats/<int:chat_id>')
     app.register_blueprint(users_blueprint.blueprint)
     app.register_blueprint(chats_blueprint.blueprint)
     app.register_blueprint(pages_blueprint.blueprint)
-    app.register_blueprint(errorhandlers_blueprint.blueprint)
     app.register_blueprint(api_login.blueprint)
     app.run(port='8080', host='127.0.0.1')

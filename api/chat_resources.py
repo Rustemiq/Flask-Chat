@@ -1,3 +1,7 @@
+from http import HTTPStatus
+
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
 from data.db_manager import DbManager
 from data.models import db_session
 from data.chats import Chat
@@ -6,14 +10,12 @@ from api.chat_parser import chat_parser
 from flask import jsonify
 from flask_restful import Resource, abort
 
-
-def abort_if_chat_not_found(chat_id):
-    manager = DbManager()
-    if not manager.get_chat(chat_id):
-        abort(404, message=f"Chat {chat_id} not found")
+from tools.response_if_no_access import response_if_not_member
+from tools.response_if_not_found import response_if_not_found
 
 
-class ChatsListResource(Resource):
+class ChatsResource(Resource):
+    @jwt_required()
     def post(self):
         args = chat_parser.parse_args()
         manager = DbManager()
@@ -22,11 +24,16 @@ class ChatsListResource(Resource):
         return jsonify({'id': chat.id})
 
 
-class ChatsResource(Resource):
+class ChatResource(Resource):
+    @jwt_required()
     def get(self, chat_id):
-        abort_if_chat_not_found(chat_id)
         manager = DbManager()
         chat = manager.get_chat(chat_id)
+        user_id = int(get_jwt_identity())
+        user = manager.get_user(user_id)
+        response_if_not_found(chat)
+        response_if_not_found(user)
+        response_if_not_member(user, chat)
         data = chat.to_dict(
             only=(
                 'id',
