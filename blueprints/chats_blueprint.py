@@ -9,6 +9,8 @@ from forms.chat_delete import ChatDeleteForm
 from forms.chat_edit import ChatEditForm
 from forms.message_edit import MessageEditForm
 from forms.message_write import MessageForm
+from tools.abort_if_no_access import abort_if_not_member, abort_if_not_msg_author
+from tools.abort_if_not_found import abort_if_not_found
 
 blueprint = Blueprint(
     'chats_function',
@@ -55,8 +57,8 @@ def create_chat():
 def chat(chat_id):
     manager = DbManager()
     chat = manager.get_chat(chat_id)
-    if not current_user in chat.members:
-        return redirect('/')
+    abort_if_not_found(chat)
+    abort_if_not_member(current_user, chat)
     form = MessageForm()
     upload_messages = UploadSet('messages')
     if form.validate_on_submit():
@@ -76,8 +78,8 @@ def chat(chat_id):
 def chat_edit(chat_id):
     manager = DbManager()
     chat = manager.get_chat(chat_id)
-    if current_user not in chat.members:
-        return redirect('/')
+    abort_if_not_found(chat)
+    abort_if_not_member(current_user, chat)
     form = ChatEditForm(name=chat.name)
     if form.validate_on_submit():
         if form.add_user.data:
@@ -110,8 +112,8 @@ def chat_edit(chat_id):
 def chat_delete(chat_id):
     manager = DbManager()
     chat = manager.get_chat(chat_id)
-    if current_user not in chat.members:
-        return redirect('/')
+    abort_if_not_found(chat)
+    abort_if_not_member(current_user, chat)
     form = ChatDeleteForm()
     if form.validate_on_submit() and form.agreement.data:
         manager.delete_chat(chat.id)
@@ -124,8 +126,8 @@ def chat_delete(chat_id):
 def select_message(chat_id):
     manager = DbManager()
     chat = manager.get_chat(chat_id)
-    if current_user not in chat.members:
-        return redirect('/')
+    abort_if_not_found(chat)
+    abort_if_not_member(current_user, chat)
     return render_template('select_message.html', chat=chat)
 
 
@@ -134,8 +136,9 @@ def select_message(chat_id):
 def message_edit(message_id):
     manager = DbManager()
     message = manager.get_message(message_id)
-    if current_user != message.author:
-        return redirect('/')
+    abort_if_not_found(message)
+    abort_if_not_msg_author(current_user, message)
+    abort_if_not_member(current_user, message.chat)
     form = MessageEditForm(text=message.text)
     if form.validate_on_submit():
         manager.edit_message(message.id, form.text.data)
@@ -148,8 +151,9 @@ def message_edit(message_id):
 def message_delete(message_id):
     manager = DbManager()
     message = manager.get_message(message_id)
-    if current_user != message.author:
-        return redirect('/')
+    abort_if_not_found(message)
+    abort_if_not_msg_author(current_user, message)
+    abort_if_not_member(current_user, message.chat)
     chat_id = message.chat.id
     manager.delete_message(message.id)
     return redirect(f'/chat/{chat_id}')
@@ -161,8 +165,10 @@ def kick(user_id, chat_id):
     manager = DbManager()
     chat = manager.get_chat(chat_id)
     user = manager.get_user(user_id)
-    if current_user not in chat.members:
-        return redirect('/')
+    abort_if_not_found(chat)
+    abort_if_not_found(user)
+    abort_if_not_member(user, chat)
+    abort_if_not_member(current_user, chat)
     chat.members.remove(user)
     if chat.members == []:
         manager.delete_chat(chat.id)
@@ -176,8 +182,8 @@ def kick(user_id, chat_id):
 def download(file_id):
     manager = DbManager()
     file = manager.get_file(file_id)
-    if not current_user in file.message.chat.members:
-        return redirect('/')
+    abort_if_not_found(file)
+    abort_if_not_member(current_user, file.message.chat)
     upload_messages = UploadSet('messages')
     path = upload_messages.url(file.filename)
     return send_file(path, download_name=file.user_filename, as_attachment=True)
