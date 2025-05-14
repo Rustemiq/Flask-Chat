@@ -20,6 +20,9 @@ class DbManager():
     def get_chat(self, chat_id):
         return self.db_sess.query(Chat).filter(Chat.id == chat_id).first()
 
+    def get_all_chats(self):
+        return self.db_sess.query(Chat).all()
+
     def get_message(self, message_id):
         return self.db_sess.query(Message).filter(Message.id == message_id).first()
 
@@ -72,16 +75,22 @@ class DbManager():
         user.birth_date = params.get('birth_date', user.birth_date)
         if 'password' in params.keys():
             user.set_password(params['password'])
+        self.db_sess.add(user)
+        self.db_sess.commit()
 
     def edit_chat(self, chat_id, **params):
         chat = self.get_chat(chat_id)
         chat.name = params.get('name', chat.name)
         for username in params.get('new_members', []):
             chat.members.append(self.get_user_by_name(username))
+        self.db_sess.add(chat)
+        self.db_sess.commit()
 
     def edit_message(self, message_id, text):
         message = self.get_message(message_id)
         message.text = text
+        self.db_sess.add(message)
+        self.db_sess.commit()
 
     def delete_user(self, user_id):
         user = self.get_user(user_id)
