@@ -1,7 +1,7 @@
 import datetime
 
 from flask import Blueprint, redirect, render_template
-from flask_login import current_user, login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 
 from data.db_manager import DbManager
 from forms.user_edit import UserEditForm
@@ -9,6 +9,8 @@ from forms.user_login import LoginForm
 from forms.user_register import RegisterForm
 from forms.change_password import ChangePasswordForm
 from forms.user_delete import UserDeleteForm
+from tools.abort_if_no_access import abort_if_authenticated, abort_if_not_concrete_user
+from tools.abort_if_not_found import abort_if_not_found
 
 blueprint = Blueprint(
     'users_function',
@@ -19,8 +21,7 @@ blueprint = Blueprint(
 
 @blueprint.route('/register', methods=['GET', 'POST'])
 def register():
-    if current_user.is_authenticated:
-        return redirect('/')
+    abort_if_authenticated(current_user)
     form = RegisterForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
@@ -43,6 +44,7 @@ def register():
 
 @blueprint.route('/login', methods=['GET', 'POST'])
 def login():
+    abort_if_authenticated(current_user)
     form = LoginForm()
     if form.validate_on_submit():
         manager = DbManager()
@@ -61,16 +63,17 @@ def login():
 def profile(user_id):
     manager = DbManager()
     user = manager.get_user(user_id)
+    abort_if_not_found(user)
     return render_template('profile.html', user=user)
 
 
 @blueprint.route('/profile_edit/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def profile_edit(user_id):
-    if current_user.id != user_id:
-        return redirect('/')
     manager = DbManager()
     user = manager.get_user(user_id)
+    abort_if_not_found(user)
+    abort_if_not_concrete_user(current_user, user)
     y, m, d = map(int, user.birth_date.split('-'))
     birth_date = datetime.date(y, m, d)
     form = UserEditForm(
@@ -85,18 +88,18 @@ def profile_edit(user_id):
             username=form.username.data,
             birth_date=str(form.birth_date.data)
         )
-        return redirect('/')
+        return redirect(f'/profile/{user_id}')
     return render_template('profile_edit.html', user=user, form=form)
 
 
 @blueprint.route('/profile_delete/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def profile_delete(user_id):
-    if current_user.id != user_id:
-        return redirect('/')
     form = UserDeleteForm()
     manager = DbManager()
     user = manager.get_user(user_id)
+    abort_if_not_found(user)
+    abort_if_not_concrete_user(current_user, user)
     if form.validate_on_submit() and form.agreement.data:
         if not user.check_password(form.password.data):
             return render_template('profile_delete.html', form=form, message='Wrong password')
@@ -108,11 +111,11 @@ def profile_delete(user_id):
 @blueprint.route('/change_password/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def change_password(user_id):
-    if current_user.id != user_id:
-        return redirect('/')
     form = ChangePasswordForm()
     manager = DbManager()
     user = manager.get_user(user_id)
+    abort_if_not_found(user)
+    abort_if_not_concrete_user(current_user, user)
     if form.validate_on_submit():
         if not user.check_password(form.old_password.data):
             return render_template(
