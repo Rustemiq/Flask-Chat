@@ -44,4 +44,5 @@ if __name__ == '__main__':
     app.register_blueprint(chats_blueprint.blueprint)
     app.register_blueprint(pages_blueprint.blueprint)
     app.register_blueprint(errorhandlers_blueprint.blueprint)
+    app.register_blueprint(api_login.blueprint)
     app.run(port='8080', host='127.0.0.1')
