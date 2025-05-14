@@ -1,11 +1,12 @@
-from flask import Flask, make_response, jsonify, session
+from flask import Flask
+from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from flask_login import LoginManager
 from flask_uploads import configure_uploads, UploadSet
 
 from api.user_resources import UsersListResource, UsersResource
 from api.chat_resources import ChatsListResource, ChatsResource
-from blueprints import users_blueprint, chats_blueprint, pages_blueprint, errorhandlers_blueprint
+from blueprints import users_blueprint, chats_blueprint, pages_blueprint, errorhandlers_blueprint, api_login
 from data.db_manager import DbManager
 from data.models import db_session
 from decouple import config
@@ -17,11 +18,14 @@ app.config['UPLOADED_MESSAGES_DEST'] = 'media/message_files'
 app.config['UPLOADED_MESSAGES_URL'] = 'media/message_files/'
 app.config['UPLOADED_MESSAGES_ALLOW'] = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
+app.config["JWT_SECRET_KEY"] = config('jwt_secret_key', default='default_secretkey')
 messages = UploadSet('messages')
 configure_uploads(app, messages)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+jwt = JWTManager(app)
 
 
 @login_manager.user_loader
