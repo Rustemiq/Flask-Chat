@@ -45,6 +45,7 @@ class DbManager():
 
     def create_chat(self, name, members_names):
         chat = Chat(name=name)
+        members_names = list(set(members_names)) #Удаление дублирующихся участников
         for username in members_names:
             chat.members.append(self.get_user_by_name(username))
         self.db_sess.add(chat)
@@ -85,7 +86,9 @@ class DbManager():
         chat = self.get_chat(chat_id)
         chat.name = params.get('name', chat.name)
         for username in params.get('new_members', []):
-            chat.members.append(self.get_user_by_name(username))
+            user = self.get_user_by_name(username)
+            if user not in chat.members:
+                chat.members.append(user)
         self.db_sess.add(chat)
         self.db_sess.commit()
 
