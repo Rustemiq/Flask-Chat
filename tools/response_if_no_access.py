@@ -12,7 +12,7 @@ def response_if_not_msg_author(user, message):
         abort(HTTPStatus.FORBIDDEN, message=f"Permission denied")
 
 
-def response_if_not_concrete_user(cur_user, user):
-    if cur_user != user:
+def response_if_not_concrete_user(cur_user_id, user_id):
+    if cur_user_id != user_id:
         abort(HTTPStatus.FORBIDDEN, message=f"Permission denied")
 

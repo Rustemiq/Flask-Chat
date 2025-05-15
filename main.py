@@ -4,7 +4,7 @@ from flask_restful import Api
 from flask_login import LoginManager
 from flask_uploads import configure_uploads, UploadSet
 
-from api.user_resources import UsersListResource, UsersResource
+from api.user_resources import UserResource, UsersResource
 from api.chat_resources import ChatsResource, ChatResource
 from blueprints import users_blueprint, chats_blueprint, pages_blueprint, api_login
 from data.db_manager import DbManager
@@ -36,8 +36,8 @@ def load_user(user_id):
 
 if __name__ == '__main__':
     db_session.global_init('db/flask_chat.db')
-    api.add_resource(UsersListResource, '/api/users')
-    api.add_resource(UsersResource, '/api/users/<int:user_id>')
+    api.add_resource(UsersResource, '/api/users')
+    api.add_resource(UserResource, '/api/users/<int:user_id>')
     api.add_resource(ChatsResource, '/api/chats')
     api.add_resource(ChatResource, '/api/chats/<int:chat_id>')
     app.register_blueprint(users_blueprint.blueprint)

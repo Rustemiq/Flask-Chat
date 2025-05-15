@@ -17,6 +17,9 @@ class DbManager():
     def get_user_by_name(self, username):
         return self.db_sess.query(User).filter(User.username == username).first()
 
+    def get_all_users(self):
+        return self.db_sess.query(User).all()
+
     def get_chat(self, chat_id):
         return self.db_sess.query(Chat).filter(Chat.id == chat_id).first()
 
