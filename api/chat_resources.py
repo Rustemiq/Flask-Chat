@@ -29,6 +29,14 @@ class ChatsResource(Resource):
         chat = manager.create_chat(name=args['name'], members_names=members)
         return jsonify({'id': chat.id})
 
+    @jwt_required()
+    def get(self):
+        manager = DbManager()
+        user_id = int(get_jwt_identity())
+        user = manager.get_user(user_id)
+        chats = user.chats
+        return jsonify({'chats': [chat.to_dict(only=('id', 'name')) for chat in chats]})
+
 
 class ChatResource(Resource):
     @jwt_required()
