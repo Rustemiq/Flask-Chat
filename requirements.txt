@@ -1,0 +1,10 @@
+Flask
+Flask-JWT-Extended
+Flask-Reuploaded
+Flask-RESTful
+Flask-Login
+Flask-WTF
+python-decouple
+transliterate
+SQLAlchemy
+sqlalchemy-serializer
