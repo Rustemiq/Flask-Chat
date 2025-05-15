@@ -6,6 +6,7 @@ from flask_uploads import configure_uploads, UploadSet
 
 from api.user_resources import UserResource, UsersResource
 from api.chat_resources import ChatsResource, ChatResource
+from api.message_resources import MessageResource, MessagesResource
 from blueprints import users_blueprint, chats_blueprint, pages_blueprint, api_login
 from data.db_manager import DbManager
 from data.models import db_session
@@ -40,6 +41,8 @@ if __name__ == '__main__':
     api.add_resource(UserResource, '/api/users/<int:user_id>')
     api.add_resource(ChatsResource, '/api/chats')
     api.add_resource(ChatResource, '/api/chats/<int:chat_id>')
+    api.add_resource(MessagesResource, '/api/messages')
+    api.add_resource(MessageResource, '/api/messages/<int:message_id>')
     app.register_blueprint(users_blueprint.blueprint)
     app.register_blueprint(chats_blueprint.blueprint)
     app.register_blueprint(pages_blueprint.blueprint)
