@@ -5,10 +5,12 @@ from wtforms import SubmitField, TextAreaField, MultipleFileField
 from wtforms.validators import DataRequired
 
 
-messages = UploadSet('messages')
+messages = UploadSet("messages")
+
+
 class MessageForm(FlaskForm):
     text = TextAreaField(validators=[DataRequired()])
-    files = MultipleFileField('Files', validators=[
-        FileAllowed(messages, 'Unsupported file extension')
-    ])
-    submit = SubmitField('Send')
+    files = MultipleFileField(
+        "Files", validators=[FileAllowed(messages, "Unsupported file extension")]
+    )
+    submit = SubmitField("Send")
