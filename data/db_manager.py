@@ -7,7 +7,7 @@ from tools.singleton import singleton
 
 
 @singleton
-class DbManager():
+class DbManager:
     def __init__(self):
         self.db_sess = db_session.create_session()
 
@@ -33,11 +33,7 @@ class DbManager():
         return self.db_sess.query(File).filter(File.id == file_id).first()
 
     def create_user(self, nickname, username, birth_date, password):
-        user = User(
-            nickname=nickname,
-            username=username,
-            birth_date=birth_date
-        )
+        user = User(nickname=nickname, username=username, birth_date=birth_date)
         user.set_password(password)
         self.db_sess.add(user)
         self.db_sess.commit()
@@ -45,7 +41,7 @@ class DbManager():
 
     def create_chat(self, name, members_names):
         chat = Chat(name=name)
-        members_names = list(set(members_names)) #Удаление дублирующихся участников
+        members_names = list(set(members_names))  # Удаление дублирующихся участников
         for username in members_names:
             chat.members.append(self.get_user_by_name(username))
         self.db_sess.add(chat)
@@ -53,20 +49,14 @@ class DbManager():
         return chat
 
     def create_message(self, chat_id, author_id, text):
-        message = Message(
-            chat_id=chat_id,
-            author_id=author_id,
-            text=text
-        )
+        message = Message(chat_id=chat_id, author_id=author_id, text=text)
         self.db_sess.add(message)
         self.db_sess.commit()
         return message
 
     def create_file(self, filename, user_filename, message_id):
         file = File(
-            filename=filename,
-            user_filename=user_filename,
-            message_id=message_id
+            filename=filename, user_filename=user_filename, message_id=message_id
         )
         self.db_sess.add(file)
         self.db_sess.commit()
@@ -74,18 +64,18 @@ class DbManager():
 
     def edit_user(self, user_id, **params):
         user = self.get_user(user_id)
-        user.nickname = params.get('nickname', user.nickname)
-        user.username = params.get('username', user.username)
-        user.birth_date = params.get('birth_date', user.birth_date)
-        if 'password' in params.keys():
-            user.set_password(params['password'])
+        user.nickname = params.get("nickname", user.nickname)
+        user.username = params.get("username", user.username)
+        user.birth_date = params.get("birth_date", user.birth_date)
+        if "password" in params.keys():
+            user.set_password(params["password"])
         self.db_sess.add(user)
         self.db_sess.commit()
 
     def edit_chat(self, chat_id, **params):
         chat = self.get_chat(chat_id)
-        chat.name = params.get('name', chat.name)
-        for username in params.get('new_members', []):
+        chat.name = params.get("name", chat.name)
+        for username in params.get("new_members", []):
             user = self.get_user_by_name(username)
             if user not in chat.members:
                 chat.members.append(user)
@@ -103,7 +93,7 @@ class DbManager():
         for chat in user.chats:
             for message in chat.messages:
                 if message.author_id == user_id:
-                    self.edit_message(message.id, 'User has been deleted')
+                    self.edit_message(message.id, "User has been deleted")
                     for file in message.files:
                         self.delete_file(file.id)
                     message.author_id = None
@@ -123,6 +113,7 @@ class DbManager():
         for file in message.files:
             self.delete_file(file.id)
         self.db_sess.delete(message)
+
         self.db_sess.commit()
 
     def delete_file(self, file_id):

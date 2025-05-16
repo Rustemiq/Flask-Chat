@@ -1,4 +1,4 @@
-from wtforms import SubmitField, FieldList, FormField, BooleanField
+from wtforms import FieldList, FormField
 
 from forms.chat_create import ChatCreationForm, UsernameForm
 

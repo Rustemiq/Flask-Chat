@@ -13,6 +13,5 @@ def is_valid_date(date_string):
 
 
 def response_if_invalid_date(date):
-    print(date)
     if not is_valid_date(date):
-        abort(HTTPStatus.BAD_REQUEST, message='Invalid date')
+        abort(HTTPStatus.BAD_REQUEST, message="Invalid date")
